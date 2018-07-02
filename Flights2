@@ -1,0 +1,60 @@
+
+          .
+*&---------------------------------------------------------------------*
+*& Report  ZZ_2007_FLIGHTS
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  ZZ_2007_FLIGHTS.
+
+
+DATA:it_flights TYPE STANDARD TABLE OF SPFLI,
+wa_flight  TYPE SPFLI.
+PARAMETER: pa_char LIKE spfli-carrid.
+
+START-OF-SELECTION.
+
+call function 'Z_2007_GET_FLIGHTS'
+  exporting
+   CARRID   =  pa_char
+IMPORTING
+   LIST          = it_flights
+EXCEPTIONS
+NO_AUTH = 7.
+
+
+
+
+
+
+
+IF sy-subrc EQ 7.
+  WRITE 'Error, Exception'.
+ELSE.
+   FORMAT COLOR 1.
+    WRITE:   /'Connection', 12 'From',35(17) 'To'.
+    FORMAT COLOR OFF.
+    SKIP 1.
+    ULINE AT 1(51).
+      AT LINE-SELECTION.
+  LOOP AT it_flights  INTO wa_flight.
+     FORMAT COLOR = 2.
+
+
+    WRITE: / '|', wa_flight-connid, '|', (15) wa_flight-cityfrom, 26 '|', 31 wa_flight-cityto, 51 '|'.
+WRITE: / '|', 8 '|', wa_flight-countryfr UNDER wa_flight-cityfrom, 26 '|',
+wa_flight-countryto UNDER wa_flight-cityto, 51 '|'.
+HIDE wa_flight.
+ULINE AT 1(51).
+HIDE wa_flight.
+
+
+
+  ENDLOOP.
+
+
+ENDIF.
+
