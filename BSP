@@ -1,0 +1,60 @@
+<%@page language="abap"%>
+
+<html>
+<head>
+<title>Beach Chair PLC</title>
+</head>
+<body>
+<%
+DATA wa_broch TYPE ZZ2007_BROCH.
+DATA wa_offer TYPE ZZ2007_OFFER.
+DATA wa_flight1 TYPE SPFLI.
+DATA wa_flight2 TYPE SPFLI.
+DATA date1 TYPE ZZ2007_BROCH-VFROM.
+DATA date2 TYPE ZZ2007_BROCH-VTO.
+SELECT * FROM ZZ2007_BROCH INTO wa_broch WHERE VFROM LE sy-datum AND VTO GE sy-datum.
+%>
+<h1><%=wa_broch-title %></h1>
+(Valid from <%=wa_broch-vfrom%> to <%=wa_broch-vto%>) <br><br>
+
+<%
+SELECT * FROM ZZ2007_OFFER INTO wa_offer WHERE brnr = wa_broch-brochid.
+SELECT SINGLE * FROM SPFLI INTO wa_flight1 WHERE carrid = wa_offer-carrid1 AND connid = wa_offer-connid1.
+SELECT SINGLE * FROM SPFLI INTO wa_flight2 WHERE carrid = wa_offer-carrid2 AND connid = wa_offer-connid2.
+%>
+
+<%
+DATA available TYPE i.
+CALL FUNCTION 'Z_2007_SOFFER'
+  EXPORTING
+    CARRID1 = wa_offer-carrid1
+    CONNID1 = wa_offer-connid1
+    CARRID2 = wa_offer-carrid2
+    CONNID2 = wa_offer-connid2
+IMPORTING AVAILABLE = available.
+  IF available = 1.
+    %> There are flights with free seats available. <%
+ELSE.
+  %> CAUTION: No flights or no flights with free seats available!<%
+ENDIF.
+   %>
+
+
+
+
+<table border=1>
+<tr><td>Offer No.:</td><td><%=wa_offer-offerid%></td></tr>
+<tr><td>Description:</td><td><%=wa_offer-description%></td></tr>
+<tr><td>Price:</td><td><%=wa_offer-price%> <%=wa_offer-curr%></td></tr>
+<tr><td>Number of nights:</td><td><%=wa_offer-nights%></td></tr>
+<tr><td>Hotel:</td><td> <%=wa_offer-hotel%> </td></tr>
+<tr><td>Flight:</td><td>No. <%=wa_offer-carrid1%>-<%=wa_offer-connid1%> from <%=wa_flight1-cityfrom%> to <%=wa_flight1-cityto%></td></tr>
+<tr><td>Flight back:</td><td>No. <%=wa_offer-carrid2%>-<%=wa_offer-connid2%> from <%=wa_flight2-cityfrom%> to <%=wa_flight2-cityto%></td></tr>
+</table>
+
+<%
+ENDSELECT.
+ENDSELECT.
+%>
+</body>
+</html>
