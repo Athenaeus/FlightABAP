@@ -1,0 +1,80 @@
+LIKE LINE OF it_flights.
+
+LOOP AT it_flights INTO wa_flight.
+WRITE: wa_flight-connid, wa_flight-cityfrom,wa_flight-countryfr,wa_flight-cityto,wa_flight-countryto.
+
+ENDLOOP.
+
+CASE s-subrc.
+WHEN 0.LOOP AT it_flights INTO wa_flight.
+WRITE: wa_flight-connid, wa_flight-cityfrom,wa_flight-countryfr,wa_flight-cityto,wa_flight-countryto.
+
+ENDLOOP.
+WHEN 1. Write 'lathos'.
+ENDCASE.
+
+
+IF sy-subrc EQ 0.
+WRITE 'sosto'.
+ELSE.
+WRITE 'Error.'.
+ENDIF.
+
+
+PARAMETER pa_char LIKE spfli-carrid.
+
+ WHERE spfli-carrid = pa_char.
+
+SELECT * FROM SPFLI INTO TABLE it_flights  WHERE carrid = pa_char.
+it_flights
+
+call function 'Z_2007_GET_FLIGHTS'
+  exporting
+   CARRID   =  pa_char
+IMPORTING
+   LIST          = it_flights
+          .
+
+READ TABLE it_flights INTO wa_flight.
+
+ name TYPE c LENGTH 20,
+       seats TYPE i,
+        topspeed TYPE i.
+
+
+
+DATA im_seats TYPE c.
+ DATA im_topspeed TYPE c.
+DATA im_name TYPE i.
+
+
+class VEHICLE implementation.
+
+METHOD set_attribute_values.
+  im_name = name.
+  seats = im_seats.
+  topspeed = im_topspeed.
+ENDMETHOD.
+
+METHOD print.
+WRITE :/'Name:', 30 name,
+       /'Seats:', 30 seats,
+       /'Top Speed:',30 topspeed.
+
+
+
+
+
+
+
+
+START-OF-SELECTION.
+
+CREATE OBJECT myvehicle.
+myvehicle->set_attribute_values(
+EXPORTING im_name = 'Ford Focus'
+im_vehicle = 3
+im_topspeed = 150 ).
+myvehicle->print( ).
+ENDMETHOD.
+endclass.               "VEHICLE
